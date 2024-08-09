@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .btn {
+            padding: 6px 12px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #e9e9e9;
+        }
+        .btn-add, .btn-export {
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Record List</h1>
+
+    <button class="btn btn-add" onclick="addNewRow()">Add New Record</button>
+    <button class="btn btn-export" onclick="exportToCSV()">Export to CSV</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="recordTable">
+            <!-- Sample Row -->
+            <tr>
+                <td>
+                    <select disabled>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Oil">Oil</option>
+                    </select>
+                </td>
+                <td><input type="text" value="Sample Description" readonly></td>
+                <td><input type="number" value="10" readonly></td>
+                <td><input type="number" value="1" readonly></td>
+                <td><input type="number" value="10" readonly></td>
+                <td>
+                    <button class="btn" onclick="editRow(this)">Edit</button>
+                    <button class="btn" onclick="deleteRow(this)">Delete</button>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">Total Amount</td>
+                <td id="totalAmount">10</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+        function calculateTotal() {
+            let total = 0;
+            const rows = document.querySelectorAll('#recordTable tr');
+            rows.forEach(row => {
+                const amount = parseFloat(row.cells[4].querySelector('input').value);
+                total += isNaN(amount) ? 0 : amount;
+            });
+            document.getElementById('totalAmount').innerText = total.toFixed(2);
+        }
+
+        function addNewRow() {
+            const table = document.getElementById('recordTable');
+            const newRow = document.createElement('tr');
+
+            newRow.innerHTML = `
+                <td>
+                    <select disabled>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Oil">Oil</option>
+                    </select>
+                </td>
+                <td><input type="text" value="" readonly></td>
+                <td><input type="number" value="0" readonly></td>
+                <td><input type="number" value="1" readonly></td>
+                <td><input type="number" value="0" readonly></td>
+                <td>
+                    <button class="btn" onclick="editRow(this)">Edit</button>
+                    <button class="btn" onclick="deleteRow(this)">Delete</button>
+                </td>
+            `;
+
+            table.appendChild(newRow);
+            calculateTotal();
+        }
+
+        function deleteRow(btn) {
+            const row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+            calculateTotal();
+        }
+
+        function editRow(btn) {
+            const row = btn.parentNode.parentNode;
+            const inputs = row.querySelectorAll('input, select');
+
+            if (btn.textContent === 'Edit') {
+                inputs.forEach(input => input.removeAttribute('readonly'));
+                row.querySelector('select').removeAttribute('disabled');
+                btn.textContent = 'Save';
+                // Add event listeners to Quantity and Price fields to update the amount
+                row.cells[3].querySelector('input').addEventListener('input', () => updateAmount(row));
+                row.cells[2].querySelector('input').addEventListener('input', () => updateAmount(row));
+            } else {
+                inputs.forEach(input => input.setAttribute('readonly', true));
+                row.querySelector('select').setAttribute('disabled', true);
+                btn.textContent = 'Edit';
+                calculateTotal();
+            }
+        }
+
+        function updateAmount(row) {
+            const qty = parseFloat(row.cells[3].querySelector('input').value);
+            const price = parseFloat(row.cells[2].querySelector('input').value);
+            const amount = isNaN(qty) || isNaN(price) ? 0 : qty * price;
+            row.cells[4].querySelector('input').value = amount.toFixed(2);
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            const rows = document.querySelectorAll('table tr');
+
+            rows.forEach((row) => {
+                let rowData = [];
+                row.querySelectorAll('td, th').forEach((cell, index) => {
+                    if (index < 5) { // Exclude the actions column
+                        const input = cell.querySelector('input, select');
+                        rowData.push(input ? input.value : cell.innerText);
+                    }
+                });
+                csvContent += rowData.join(",") + "\r\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "record_list.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+
+</body>
+</html>
