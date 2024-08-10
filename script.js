@@ -14,38 +14,26 @@ function calculateTotal() {
 // Email Function
 
 function prepareEmail() {
-    let csvContent = "Product,Description,Date,Price,Quantity,Amount\n";
+    let csvContent = "Product,Description,Date,Price,Quantity,Amount;";
+
     const rows = document.querySelectorAll('#recordTable tr');
     rows.forEach(row => {
         const cols = row.querySelectorAll('select, input');
         const rowData = Array.from(cols).map(col => col.value);
-        csvContent += rowData.join(",") + "\n";
+        csvContent += rowData.join(",") + ";";
     });
 
-    // Create a Blob from the CSV content
-    const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(csvBlob);
-    const fileName = 'record_list.csv';
+    // Replace newline characters with spaces to ensure the CSV fits in the email body
+    csvContent = csvContent.replace(/\n/g, ' ');
 
-    // Create a download link for the CSV file
-    const downloadLink = document.createElement('a');
-    downloadLink.href = url;
-    downloadLink.download = fileName;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-
-    // Create a mailto link
+    // Prepare mailto link
     const email = 'example@email.com';
-    const subject = encodeURIComponent('CSV File Attached');
-    const body = encodeURIComponent('Please find the attached CSV file.');
+    const subject = encodeURIComponent('CSV Data');
+    const body = encodeURIComponent(csvContent);
     const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
 
     // Open the default email application with the prefilled mailto link
     window.location.href = mailtoLink;
-
-    // Clean up the Blob URL
-    URL.revokeObjectURL(url);
     }
 
 // Function to toggle the visibility of the popup form
