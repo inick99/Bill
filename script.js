@@ -14,6 +14,7 @@ function calculateTotal() {
 // Email Function
 
 function prepareEmail() {
+    // Initialize the HTML table structure
     let htmlContent = `
     <table border="1" cellspacing="0" cellpadding="5">
         <tr>
@@ -25,6 +26,7 @@ function prepareEmail() {
             <th>Amount</th>
         </tr>`;
 
+    // Get all rows from the table body
     const rows = document.querySelectorAll('#recordTable tr');
     rows.forEach(row => {
         const cols = row.querySelectorAll('select, input');
@@ -36,6 +38,7 @@ function prepareEmail() {
         htmlContent += rowData;
     });
 
+    // Close the HTML table
     htmlContent += '</table>';
 
     // Encode the HTML content to be safe for URLs
