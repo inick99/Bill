@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Record List</title>
+    <title>Generate Bill</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -104,16 +104,15 @@
 </head>
 <body>
 
-    <h1>Title</h1>
-
-    <button class="btn btn-add" onclick="openForm()">Add New Record</button>
-    <button class="btn btn-export" onclick="exportToCSV()">Export to CSV</button>
+    <h1>Bill</h1>
+    <button class="btn btn-add" onclick="openForm()">Add New Record</button> <button class="btn btn-export" onclick="exportToCSV()">Export to CSV</button>
 
     <table>
         <thead>
             <tr>
                 <th>Product</th>
                 <th>Description</th>
+                <th>Date</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Amount</th>
@@ -131,6 +130,7 @@
                     </select>
                 </td>
                 <td><input type="text" value="Sample Description" readonly></td>
+                <td><input type="date" readonly></td>
                 <td><input type="number" value="10" readonly></td>
                 <td><input type="number" value="1" readonly></td>
                 <td><input type="number" value="10" readonly></td>
@@ -162,6 +162,8 @@
     </select>
     <label>Description</label>
     <input type="text" id="description" placeholder="Enter product description">
+    <label>Date</label>
+    <input type="Date" id="date" placeholder="Enter Bill Date">
     <label>Price</label>
     <input type="number" id="price" value="0" placeholder="Enter price">
     <label>Quantity</label>
@@ -196,6 +198,7 @@
     function addNewRowFromForm() {
         const product = document.getElementById('product').value;
         const description = document.getElementById('description').value.trim();
+        const date = document.getElementById('date').value);
         const price = parseFloat(document.getElementById('price').value);
         const quantity = parseInt(document.getElementById('quantity').value);
         const amount = price * quantity;
@@ -216,6 +219,7 @@
                 </select>
             </td>
             <td><input type="text" value="${description}" readonly></td>
+            <td><input type="date" value="${date}" readonly></td>
             <td><input type="number" value="${price}" readonly></td>
             <td><input type="number" value="${quantity}" readonly></td>
             <td><input type="number" value="${amount.toFixed(2)}" readonly></td>
@@ -226,7 +230,7 @@
         `;
         table.appendChild(newRow);
         calculateTotal();
-        updateCookieData({ product, description, price, quantity });
+        updateCookieData({ product, description, date, price, quantity });
         closeForm();
     }
 
@@ -274,7 +278,7 @@
 
     function exportToCSV() {
         let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Product,Description,Price,Quantity,Amount\n";
+        csvContent += "Product,Description,date,Price,Quantity,Amount\n";
 
         const rows = document.querySelectorAll('#recordTable tr');
         rows.forEach(row => {
@@ -296,9 +300,10 @@
         document.body.removeChild(link);
     }
 
-    function updateCookieData({ product, description, price, quantity }) {
+    function updateCookieData({ product, description, date, price, quantity }) {
         setCookie('lastProduct', product);
         setCookie('lastDescription', description);
+        setCookie('lastdate', date);
         setCookie('lastPrice', price);
         setCookie('lastQuantity', quantity);
     }
