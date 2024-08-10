@@ -14,22 +14,34 @@ function calculateTotal() {
 // Email Function
 
 function prepareEmail() {
-    let csvContent = "Product,Description,Date,Price,Quantity,Amount;";
+    let htmlContent = `
+    <table border="1" cellspacing="0" cellpadding="5">
+        <tr>
+            <th>Product</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+        </tr>`;
 
     const rows = document.querySelectorAll('#recordTable tr');
     rows.forEach(row => {
         const cols = row.querySelectorAll('select, input');
-        const rowData = Array.from(cols).map(col => col.value);
-        csvContent += rowData.join(",") + ";";
+        let rowData = '<tr>';
+        cols.forEach(col => {
+            rowData += `<td>${col.value}</td>`;
+        });
+        rowData += '</tr>';
+        htmlContent += rowData;
     });
 
-    // Replace newline characters with spaces to ensure the CSV fits in the email body
-    csvContent = csvContent.replace(/\n/g, ' ');
+    htmlContent += '</table>';
 
-    // Prepare mailto link
+    // Encode the HTML content to be safe for URLs
     const email = 'example@email.com';
-    const subject = encodeURIComponent('CSV Data');
-    const body = encodeURIComponent(csvContent);
+    const subject = encodeURIComponent('CSV Data as HTML Table');
+    const body = encodeURIComponent(htmlContent);
     const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
 
     // Open the default email application with the prefilled mailto link
