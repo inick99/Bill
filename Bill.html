@@ -3,299 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Record List</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        h1 {
-            text-align: center;
-            color: #343a40;
-        }
-        .btn {
-            padding: 10px 20px;
-            margin: 10px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        .btn-add, .btn-export {
-            display: block;
-            margin: 20px auto;
-            width: fit-content;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: center;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        .popup-form {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    border-radius: 8px;
-    width: 80%; /* Adjust width */
-    max-width: 400px; /* Limit the maximum width */
-}
-
-.popup-form input, .popup-form select {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.popup-form .btn-close {
-    background-color: #dc3545;
-}
-
-.overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 500;
-}
-
-@media (max-width: 768px) {
-    .popup-form {
-        width: 90%; /* Increase width on mobile */
-        max-width: 500px; /* Increase the maximum width on mobile */
-        padding: 30px; /* Increase padding for a larger form */
-    }
-    th, td {
-        font-size: 14px;
-        padding: 8px;
-    }
-    .btn {
-        padding: 8px 16px;
-        font-size: 14px;
-    }
-}
-</style>
+    <title>Copy to Clipboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="p-3">
 
-    <h1>Title</h1>
-
-    <button class="btn btn-add" onclick="openForm()">Add New Record</button> <button class="btn btn-export" onclick="exportToCSV()">Export to CSV</button>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Amount</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="recordTable">
-            <!-- Sample Row -->
-            <tr>
-                <td>
-                    <select disabled>
-                        <option value="Petrol">Petrol</option>
-                        <option value="Diesel">Diesel</option>
-                        <option value="Oil">Oil</option>
-                    </select>
-                </td>
-                <td><input type="text" value="Sample Description" readonly></td>
-                <td><input type="number" value="10" readonly></td>
-                <td><input type="number" value="1" readonly></td>
-                <td><input type="number" value="10" readonly></td>
-                <td>
-                    <button class="btn" onclick="editRow(this)">Edit</button>
-                    <button class="btn" onclick="deleteRow(this)">Delete</button>
-                </td>
-            </tr>
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="4">Total Amount</td>
-                <td id="totalAmount">10</td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
-
-    <!-- Pop-up Form -->
-    <div class="overlay" id="overlay" onclick="closeForm()"></div>
-    <div class="popup-form" id="popupForm">
-        <h3>Add New Record</h3>
-        <label>Product</label>
-        <select id="product">
-            <option value="Petrol">Petrol</option>
-            <option value="Diesel">Diesel</option>
-            <option value="Oil">Oil</option>
-        </select>
-        <label>Description</label>
-        <input type="text" id="description">
-        <label>Price</label>
-        <input type="number" id="price" value="0">
-        <label>Quantity</label>
-        <input type="number" id="quantity" value="1">
-        <button class="btn" onclick="addNewRowFromForm()">Add Record</button>
-        <button class="btn btn-close" onclick="closeForm()">Close</button>
+    <div id="recordsContainer" class="border p-2 bg-light">
+        <!-- Records will be dynamically inserted here -->
     </div>
 
     <script>
-        function calculateTotal() {
-            let total = 0;
-            const rows = document.querySelectorAll('#recordTable tr');
-            rows.forEach(row => {
-                const amount = parseFloat(row.cells[4].querySelector('input').value);
-                total += isNaN(amount) ? 0 : amount;
+        // Example data for 10 records
+        const records = [
+            "4674357437488764",
+            "5678567856785678",
+            "6789678967896789",
+            "7890789078907890",
+            "8901890189018901",
+            "9012901290129012",
+            "0123012301230123",
+            "1234123412341234",
+            "2345234523452345",
+            "3456345634563456"
+        ];
+
+        // Function to format numbers
+        function formatNumber(number) {
+            return number.replace(/(\d{4})(?=\d)/g, '$1 ');
+        }
+
+        // Function to handle the copy action
+        function copyText(unformattedText) {
+            navigator.clipboard.writeText(unformattedText).then(() => {
+                // Find the button that was clicked and change its text to indicate success
+                var copyButton = document.querySelector(`[data-copy-text="${unformattedText}"]`);
+                copyButton.textContent = "Copied!";
+                copyButton.classList.remove("btn-primary");
+                copyButton.classList.add("btn-success");
+
+                // Revert button text and color after 2 seconds
+                setTimeout(() => {
+                    copyButton.textContent = "Copy";
+                    copyButton.classList.remove("btn-success");
+                    copyButton.classList.add("btn-primary");
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
             });
-            document.getElementById('totalAmount').innerText = total.toFixed(2);
         }
 
-        function openForm() {
-            document.getElementById('popupForm').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
+        // Generate the HTML for records
+        function generateRecords(records) {
+            const container = document.getElementById("recordsContainer");
+            records.forEach(record => {
+                const formattedRecord = formatNumber(record);
+                const recordElement = document.createElement("div");
+                recordElement.className = "mb-2";
 
-        function closeForm() {
-            document.getElementById('popupForm').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
+                recordElement.innerHTML = `
+                    <code>${formattedRecord}</code>
+                    <button data-copy-text="${record}" class="btn btn-sm btn-primary ml-2" onclick="copyText('${record}')">Copy</button>
+                `;
 
-        function addNewRowFromForm() {
-            const product = document.getElementById('product').value;
-            const description = document.getElementById('description').value;
-            const price = parseFloat(document.getElementById('price').value);
-            const quantity = parseInt(document.getElementById('quantity').value);
-            const amount = price * quantity;
-
-            // Input validation
-            if (description.trim() === '' || isNaN(price) || isNaN(quantity)) {
-                alert("Please fill in all fields correctly.");
-                return;
-            }
-
-            const table = document.getElementById('recordTable');
-            const newRow = document.createElement('tr');
-
-            newRow.innerHTML = `
-                <td>
-                    <select disabled>
-                        <option value="Petrol" ${product === 'Petrol' ? 'selected' : ''}>Petrol</option>
-                        <option value="Diesel" ${product === 'Diesel' ? 'selected' : ''}>Diesel</option>
-                        <option value="Oil" ${product === 'Oil' ? 'selected' : ''}>Oil</option>
-                    </select>
-                </td>
-                <td><input type="text" value="${description}" readonly></td>
-                <td><input type="number" value="${price}" readonly></td>
-                <td><input type="number" value="${quantity}" readonly></td>
-                <td><input type="number" value="${amount.toFixed(2)}" readonly></td>
-                <td>
-                    <button class="btn" onclick="editRow(this)">Edit</button>
-                    <button class="btn" onclick="deleteRow(this)">Delete</button>
-                </td>
-            `;
-
-            table.appendChild(newRow);
-            calculateTotal();
-            closeForm();
-        }
-
-        function deleteRow(btn) {
-            const row = btn.parentNode.parentNode;
-            row.parentNode.removeChild(row);
-            calculateTotal();
-        }
-
-        function editRow(btn) {
-            const row = btn.parentNode.parentNode;
-            const inputs = row.querySelectorAll('input, select');
-
-            if (btn.textContent === 'Edit') {
-                inputs.forEach((input, index) => {
-                    if (index < 4) input.removeAttribute('readonly'); // Allow edit on all except Amount
-                });
-                row.querySelector('select').remove
-                                row.querySelector('select').removeAttribute('disabled');
-                btn.textContent = 'Save';
-
-                // Attach input listeners
-                row.cells[3].querySelector('input').oninput = () => updateAmount(row);
-                row.cells[2].querySelector('input').oninput = () => updateAmount(row);
-            } else {
-                inputs.forEach(input => input.setAttribute('readonly', true));
-                row.querySelector('select').setAttribute('disabled', true);
-                btn.textContent = 'Edit';
-                calculateTotal();
-            }
-        }
-
-        function updateAmount(row) {
-            const qty = parseFloat(row.cells[3].querySelector('input').value);
-            const price = parseFloat(row.cells[2].querySelector('input').value);
-            const amount = isNaN(qty) || isNaN(price) ? 0 : qty * price;
-            row.cells[4].querySelector('input').value = amount.toFixed(2);
-        }
-
-        function exportToCSV() {
-            const rows = document.querySelectorAll('table tr');
-            let csvContent = '';
-
-            rows.forEach(row => {
-                const cols = row.querySelectorAll('td, th');
-                let csvRow = [];
-                cols.forEach(col => {
-                    if (col.querySelector('input, select')) {
-                        csvRow.push(col.querySelector('input, select').value);
-                    } else {
-                        csvRow.push(col.innerText);
-                    }
-                });
-                csvContent += csvRow.join(',') + '\n';
+                container.appendChild(recordElement);
             });
-
-            // Create a download link and trigger download
-            const downloadLink = document.createElement('a');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            downloadLink.href = url;
-            downloadLink.download = 'records.csv';
-
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
         }
 
-        // Initialize total calculation on page load
-        calculateTotal();
+        // Initialize the records on page load
+        generateRecords(records);
     </script>
 
+    <!-- Bootstrap JS (Optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
