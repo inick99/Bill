@@ -1,3 +1,8 @@
+document.addEventListener('DOMContentLoaded', () => {
+    calculateTotal();
+});
+
+// Function to calculate the total amount
 function calculateTotal() {
     const rows = document.querySelectorAll('#recordTable tr');
     let total = Array.from(rows).reduce((sum, row) => {
@@ -7,19 +12,23 @@ function calculateTotal() {
     document.getElementById('totalAmount').innerText = total.toFixed(2);
 }
 
+// Function to toggle the visibility of the popup form
 function toggleForm(displayState) {
     document.getElementById('popupForm').style.display = displayState;
     document.getElementById('overlay').style.display = displayState;
 }
 
+// Function to open the popup form
 function openForm() {
     toggleForm('block');
 }
 
+// Function to close the popup form
 function closeForm() {
     toggleForm('none');
 }
 
+// Function to add a new row to the table from the form input
 function addNewRowFromForm() {
     const product = document.getElementById('product').value;
     const description = document.getElementById('description').value.trim();
@@ -28,7 +37,7 @@ function addNewRowFromForm() {
     const quantity = parseInt(document.getElementById('quantity').value);
     const amount = price * quantity;
 
-    if (!product || !description || !date || isNaN(price) || isNaN(quantity)) {
+    if (!description || isNaN(price) || isNaN(quantity) || !date) {
         alert("Please fill in all fields correctly.");
         return;
     }
@@ -45,62 +54,50 @@ function addNewRowFromForm() {
         </td>
         <td><input type="text" value="${description}" readonly></td>
         <td><input type="date" value="${date}" readonly></td>
-        <td><input type="number" value="${price}" readonly></td>
+        <td><input type="number" value="${price.toFixed(2)}" readonly></td>
         <td><input type="number" value="${quantity}" readonly></td>
         <td><input type="number" value="${amount.toFixed(2)}" readonly></td>
         <td>
-            <button class="btn" onclick="editRow(this)">Edit</button>
-            <button class="btn" onclick="deleteRow(this)">Delete</button>
+            <button class="btn btn-edit" onclick="editRow(this)">Edit</button>
+            <button class="btn btn-delete" onclick="deleteRow(this)">Delete</button>
         </td>
     `;
     table.appendChild(newRow);
     calculateTotal();
-    updateCookieData({ product, description, date, price, quantity });
     closeForm();
 }
 
+// Function to delete a row from the table
 function deleteRow(button) {
     const row = button.closest('tr');
     row.remove();
     calculateTotal();
 }
 
+// Function to edit a row
 function editRow(button) {
     const row = button.closest('tr');
-    const inputs = row.querySelectorAll('input, select');
+    const product = row.cells[0].querySelector('select').value;
+    const description = row.cells[1].querySelector('input').value;
+    const date = row.cells[2].querySelector('input').value;
+    const price = row.cells[3].querySelector('input').value;
+    const quantity = row.cells[4].querySelector('input').value;
 
-    if (button.textContent === 'Edit') {
-        enableRowEditing(inputs);
-        button.textContent = 'Save';
-    } else {
-        disableRowEditing(inputs);
-        button.textContent = 'Edit';
-        calculateTotal();
-    }
+    // Populate form with current row data
+    document.getElementById('product').value = product;
+    document.getElementById('description').value = description;
+    document.getElementById('date').value = date;
+    document.getElementById('price').value = price;
+    document.getElementById('quantity').value = quantity;
+
+    // Show form and allow user to edit
+    openForm();
+
+    // Remove the current row after editing
+    row.remove();
 }
 
-function enableRowEditing(inputs) {
-    inputs.forEach((input, index) => {
-        if (index < 5) input.removeAttribute('readonly'); // Exclude the "Amount" field
-    });
-    inputs[0].removeAttribute('disabled');
-    inputs[3].oninput = () => updateAmount(inputs);
-    inputs[4].oninput = () => updateAmount(inputs);
-}
-
-function disableRowEditing(inputs) {
-    inputs.forEach(input => input.setAttribute('readonly', true));
-    inputs[0].setAttribute('disabled', true);
-}
-
-function updateAmount(inputs) {
-    const price = parseFloat(inputs[3].value);
-    const quantity = parseInt(inputs[4].value);
-    const amount = (price * quantity).toFixed(2);
-    inputs[5].value = amount;
-    calculateTotal();
-}
-
+// Function to export table data to CSV
 function exportToCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "Product,Description,Date,Price,Quantity,Amount\n";
@@ -115,6 +112,7 @@ function exportToCSV() {
     downloadCSV(csvContent, "record_list.csv");
 }
 
+// Function to initiate CSV download
 function downloadCSV(csvContent, filename) {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -123,19 +121,4 @@ function downloadCSV(csvContent, filename) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-}
-
-function updateCookieData({ product, description, date, price, quantity }) {
-    setCookie('lastProduct', product);
-    setCookie('lastDescription', description);
-    setCookie('lastDate', date);
-    setCookie('lastPrice', price);
-    setCookie('lastQuantity', quantity);
-}
-
-function setCookie(name, value) {
-    const date = new Date();
-    date.setTime(date.getTime() + (365 * 24 * 60 * 60 * 1000)); // Set expiration for 1 year
-    const expires = "expires=" + date.toUTCString();
-    document.cookie = `${name}=${value};${expires};path=/`;
 }
