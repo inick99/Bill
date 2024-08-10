@@ -11,6 +11,42 @@ function calculateTotal() {
     }, 0);
     document.getElementById('totalAmount').innerText = total.toFixed(2);
 }
+// Email Function
+
+function prepareEmail() {
+    let csvContent = "Product,Description,Date,Price,Quantity,Amount\n";
+    const rows = document.querySelectorAll('#recordTable tr');
+    rows.forEach(row => {
+        const cols = row.querySelectorAll('select, input');
+        const rowData = Array.from(cols).map(col => col.value);
+        csvContent += rowData.join(",") + "\n";
+    });
+
+    // Create a Blob from the CSV content
+    const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(csvBlob);
+    const fileName = 'record_list.csv';
+
+    // Create a download link for the CSV file
+    const downloadLink = document.createElement('a');
+    downloadLink.href = url;
+    downloadLink.download = fileName;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
+    // Create a mailto link
+    const email = 'example@email.com';
+    const subject = encodeURIComponent('CSV File Attached');
+    const body = encodeURIComponent('Please find the attached CSV file.');
+    const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
+
+    // Open the default email application with the prefilled mailto link
+    window.location.href = mailtoLink;
+
+    // Clean up the Blob URL
+    URL.revokeObjectURL(url);
+    }
 
 // Function to toggle the visibility of the popup form
 function toggleForm(displayState) {
