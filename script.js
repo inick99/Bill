@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    loadTableFromLocalStorage();
     calculateTotal();
 });
 
@@ -11,45 +12,53 @@ function calculateTotal() {
     }, 0);
     document.getElementById('totalAmount').innerText = total.toFixed(2);
 }
-// Email Function
 
-function prepareEmail() {
-    let csvContent = "Product,Description,Date,Price,Quantity,Amount;";
-
+// Function to save the current state of the table to localStorage
+function saveTableToLocalStorage() {
     const rows = document.querySelectorAll('#recordTable tr');
+    const records = [];
+
     rows.forEach(row => {
-        const cols = row.querySelectorAll('select, input');
-        const rowData = Array.from(cols).map(col => col.value);
-        csvContent += rowData.join(",") + ";";
+        const product = row.cells[0].querySelector('select').value;
+        const description = row.cells[1].querySelector('input').value;
+        const date = row.cells[2].querySelector('input').value;
+        const price = row.cells[3].querySelector('input').value;
+        const quantity = row.cells[4].querySelector('input').value;
+        const amount = row.cells[5].querySelector('input').value;
+
+        records.push({ product, description, date, price, quantity, amount });
     });
 
-    // Replace newline characters with spaces to ensure the CSV fits in the email body
-    csvContent = csvContent.replace(/\n/g, ' ');
-
-    // Prepare mailto link
-    const email = 'example@email.com';
-    const subject = encodeURIComponent('CSV Data');
-    const body = encodeURIComponent(csvContent);
-    const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
-
-    // Open the default email application with the prefilled mailto link
-    window.location.href = mailtoLink;
-    }
-
-// Function to toggle the visibility of the popup form
-function toggleForm(displayState) {
-    document.getElementById('popupForm').style.display = displayState;
-    document.getElementById('overlay').style.display = displayState;
+    localStorage.setItem('records', JSON.stringify(records));
 }
 
-// Function to open the popup form
-function openForm() {
-    toggleForm('block');
-}
+// Function to load the table data from localStorage
+function loadTableFromLocalStorage() {
+    const records = JSON.parse(localStorage.getItem('records')) || [];
 
-// Function to close the popup form
-function closeForm() {
-    toggleForm('none');
+    const table = document.getElementById('recordTable');
+    records.forEach(record => {
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>
+                <select disabled>
+                    <option value="Petrol" ${record.product === 'Petrol' ? 'selected' : ''}>Petrol</option>
+                    <option value="Diesel" ${record.product === 'Diesel' ? 'selected' : ''}>Diesel</option>
+                    <option value="Oil" ${record.product === 'Oil' ? 'selected' : ''}>Oil</option>
+                </select>
+            </td>
+            <td><input type="text" value="${record.description}" readonly></td>
+            <td><input type="date" value="${record.date}" readonly></td>
+            <td><input type="number" value="${parseFloat(record.price).toFixed(2)}" readonly></td>
+            <td><input type="number" value="${parseInt(record.quantity)}" readonly></td>
+            <td><input type="number" value="${parseFloat(record.amount).toFixed(2)}" readonly></td>
+            <td>
+                <button class="btn btn-edit" onclick="editRow(this)">Edit</button>
+                <button class="btn btn-delete" onclick="deleteRow(this)">Delete</button>
+            </td>
+        `;
+        table.appendChild(newRow);
+    });
 }
 
 // Function to add a new row to the table from the form input
@@ -87,6 +96,7 @@ function addNewRowFromForm() {
         </td>
     `;
     table.appendChild(newRow);
+    saveTableToLocalStorage();  // Save data to localStorage
     calculateTotal();
     closeForm();
 }
@@ -95,6 +105,7 @@ function addNewRowFromForm() {
 function deleteRow(button) {
     const row = button.closest('tr');
     row.remove();
+    saveTableToLocalStorage();  // Save data to localStorage after deletion
     calculateTotal();
 }
 
@@ -119,6 +130,23 @@ function editRow(button) {
 
     // Remove the current row after editing
     row.remove();
+    saveTableToLocalStorage();  // Save data to localStorage after editing
+}
+
+// Function to toggle the visibility of the popup form
+function toggleForm(displayState) {
+    document.getElementById('popupForm').style.display = displayState;
+    document.getElementById('overlay').style.display = displayState;
+}
+
+// Function to open the popup form
+function openForm() {
+    toggleForm('block');
+}
+
+// Function to close the popup form
+function closeForm() {
+    toggleForm('none');
 }
 
 // Function to export table data to CSV
@@ -145,4 +173,28 @@ function downloadCSV(csvContent, filename) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+// Function to prepare email with CSV content
+function prepareEmail() {
+    let csvContent = "Product,Description,Date,Price,Quantity,Amount;";
+
+    const rows = document.querySelectorAll('#recordTable tr');
+    rows.forEach(row => {
+        const cols = row.querySelectorAll('select, input');
+        const rowData = Array.from(cols).map(col => col.value);
+        csvContent += rowData.join(",") + ";";
+    });
+
+    // Replace newline characters with spaces to ensure the CSV fits in the email body
+    csvContent = csvContent.replace(/\n/g, ' ');
+
+    // Prepare mailto link
+    const email = 'example@email.com';
+    const subject = encodeURIComponent('CSV Data');
+    const body = encodeURIComponent(csvContent);
+    const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
+
+    // Open the default email application with the prefilled mailto link
+    window.location.href = mailtoLink;
 }
