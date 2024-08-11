@@ -63,6 +63,7 @@ function loadTableFromLocalStorage() {
 
 // Function to add a new row to the table from the form input
 function addNewRowFromForm() {
+    // Get the latest user inputs from the form
     const product = document.getElementById('product').value;
     const description = document.getElementById('description').value.trim();
     const date = document.getElementById('date').value;
@@ -70,11 +71,13 @@ function addNewRowFromForm() {
     const quantity = parseInt(document.getElementById('quantity').value);
     const amount = price * quantity;
 
-    if (!description || isNaN(price) || isNaN(quantity) || !date) {
+    // Validation: check if all required fields are filled in
+    if (!description || isNaN(price) || isNaN(quantity) || !date || !product) {
         alert("Please fill in all fields correctly.");
         return;
     }
 
+    // Create a new row in the table
     const table = document.getElementById('recordTable');
     const newRow = document.createElement('tr');
     newRow.innerHTML = `
@@ -95,9 +98,17 @@ function addNewRowFromForm() {
             <button class="btn btn-delete" onclick="deleteRow(this)">Delete</button>
         </td>
     `;
+
+    // Append the new row to the table
     table.appendChild(newRow);
-    saveTableToLocalStorage();  // Save data to localStorage
+
+    // Save the new data to localStorage
+    saveTableToLocalStorage();
+    
+    // Recalculate the total amount
     calculateTotal();
+    
+    // Close the form
     closeForm();
 }
 
@@ -140,7 +151,26 @@ function toggleForm(displayState) {
 }
 
 // Function to open the popup form
+// Function to open the popup form and pre-fill it if a record exists
 function openForm() {
+    const records = JSON.parse(localStorage.getItem('records')) || [];
+
+    if (records.length > 0) {
+        const lastRecord = records[records.length - 1];
+        document.getElementById('product').value = lastRecord.product;
+        document.getElementById('description').value = lastRecord.description;
+        document.getElementById('date').value = lastRecord.date;
+        document.getElementById('price').value = lastRecord.price;
+        document.getElementById('quantity').value = lastRecord.quantity;
+    } else {
+        // Clear the form if no records exist
+        document.getElementById('product').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('date').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('quantity').value = '1';
+    }
+
     toggleForm('block');
 }
 
