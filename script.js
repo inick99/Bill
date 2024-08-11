@@ -48,10 +48,10 @@ function loadTableFromLocalStorage() {
                 </select>
             </td>
             <td><input type="text" value="${record.description}" readonly></td>
-            <td><input type="date" value="${record.date}" readonly></td>
-            <td><input type="number" value="${parseFloat(record.price).toFixed(2)}" readonly></td>
-            <td><input type="number" value="${parseInt(record.quantity)}" readonly></td>
-            <td><input type="number" value="${parseFloat(record.amount).toFixed(2)}" readonly></td>
+            <td><input type="date" value="${record.date}" readonly disabled></td>
+            <td><input type="number" value="${parseFloat(record.price).toFixed(2)}" readonly disabled></td>
+            <td><input type="number" value="${parseInt(record.quantity)}" readonly disabled></td>
+            <td><input type="number" value="${parseFloat(record.amount).toFixed(2)}" readonly disabled></td>
             <td>
                 <button class="btn btn-edit" onclick="editRow(this)">Edit</button>
                 <button class="btn btn-delete" onclick="deleteRow(this)">Delete</button>
@@ -85,11 +85,11 @@ function addNewRowFromForm() {
                 <option value="Oil" ${product === 'Oil' ? 'selected' : ''}>Oil</option>
             </select>
         </td>
-        <td><input type="text" value="${description}" readonly></td>
-        <td><input type="date" value="${date}" readonly></td>
-        <td><input type="number" value="${price.toFixed(2)}" readonly></td>
-        <td><input type="number" value="${quantity}" readonly></td>
-        <td><input type="number" value="${amount.toFixed(2)}" readonly></td>
+        <td><input type="text" value="${description}" readonly disabled></td>
+        <td><input type="date" value="${date}" readonly disabled></td>
+        <td><input type="number" value="${price.toFixed(2)}" readonly disabled></td>
+        <td><input type="number" value="${quantity}" readonly disabled></td>
+        <td><input type="number" value="${amount.toFixed(2)}" readonly disabled></td>
         <td>
             <button class="btn btn-edit" onclick="editRow(this)">Edit</button>
             <button class="btn btn-delete" onclick="deleteRow(this)">Delete</button>
