@@ -47,7 +47,7 @@ function loadTableFromLocalStorage() {
                     <option value="Oil" ${record.product === 'Oil' ? 'selected' : ''}>Oil</option>
                 </select>
             </td>
-            <td><input type="text" value="${record.description}" readonly></td>
+            <td><input type="text" value="${record.description}" readonly disabled></td>
             <td><input type="date" value="${record.date}" readonly disabled></td>
             <td><input type="number" value="${parseFloat(record.price).toFixed(2)}" readonly disabled></td>
             <td><input type="number" value="${parseInt(record.quantity)}" readonly disabled></td>
