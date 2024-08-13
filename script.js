@@ -193,12 +193,7 @@ function exportToCSV() {
 
     downloadCSV(csvContent, "record_list.csv");
     // Copy csvContent to clipboard
-    const csvData = csvContent.split(',').slice(1).join(','); // Remove the "data:text/csv;charset=utf-8," prefix
-    navigator.clipboard.writeText(csvData).then(() => {
-        console.log('CSV content copied to clipboard');
-    }).catch(err => {
-        console.error('Failed to copy CSV content: ', err);
-    });
+    navigator.clipboard.writeText(csvContent)
 }
 
 // Function to initiate CSV download
