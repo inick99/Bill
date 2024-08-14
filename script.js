@@ -1,232 +1,159 @@
-document.addEventListener('DOMContentLoaded', () => {
-    loadTableFromLocalStorage();
-    calculateTotal();
-});
-
-// Function to calculate the total amount
-function calculateTotal() {
-    const rows = document.querySelectorAll('#recordTable tr');
-    let total = Array.from(rows).reduce((sum, row) => {
-        const amount = parseFloat(row.cells[5].querySelector('input').value);
-        return sum + (isNaN(amount) ? 0 : amount);
-    }, 0);
-    document.getElementById('totalAmount').innerText = total.toFixed(2);
-}
-
-// Function to save the current state of the table to localStorage
-function saveTableToLocalStorage() {
-    const rows = document.querySelectorAll('#recordTable tr');
-    const records = [];
-
-    rows.forEach(row => {
-        const product = row.cells[0].querySelector('select').value;
-        const description = row.cells[1].querySelector('input').value;
-        const date = row.cells[2].querySelector('input').value;
-        const price = row.cells[3].querySelector('input').value;
-        const quantity = row.cells[4].querySelector('input').value;
-        const amount = row.cells[5].querySelector('input').value;
-
-        records.push({ product, description, date, price, quantity, amount });
-    });
-
-    localStorage.setItem('records', JSON.stringify(records));
-}
-
-// Function to load the table data from localStorage
-function loadTableFromLocalStorage() {
-    const records = JSON.parse(localStorage.getItem('records')) || [];
-
-    const table = document.getElementById('recordTable');
-    records.forEach(record => {
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td>
-                <select disabled>
-                    <option value="Petrol" ${record.product === 'Petrol' ? 'selected' : ''}>Petrol</option>
-                    <option value="Diesel" ${record.product === 'Diesel' ? 'selected' : ''}>Diesel</option>
-                    <option value="Oil" ${record.product === 'Oil' ? 'selected' : ''}>Oil</option>
-                </select>
-            </td>
-            <td><input type="text" value="${record.description}" readonly disabled></td>
-            <td><input type="date" value="${record.date}" readonly disabled></td>
-            <td><input type="number" value="${parseFloat(record.price).toFixed(2)}" readonly disabled></td>
-            <td><input type="number" value="${parseInt(record.quantity)}" readonly disabled></td>
-            <td><input type="number" value="${parseFloat(record.amount).toFixed(2)}" readonly disabled></td>
-            <td>
-                <button class="btn btn-edit" onclick="editRow(this)">Edit</button>
-                <button class="btn btn-delete" onclick="deleteRow(this)">Delete</button>
-            </td>
-        `;
-        table.appendChild(newRow);
-    });
-}
-
-// Function to add a new row to the table from the form input
-function addNewRowFromForm() {
-    // Get the latest user inputs from the form
-    const product = document.getElementById('product').value;
-    const description = document.getElementById('description').value.trim();
-    const date = document.getElementById('date').value;
-    const price = parseFloat(document.getElementById('price').value);
-    const quantity = parseInt(document.getElementById('quantity').value);
+function addRecord(productName, description, date, price, quantity, id) {
+    // Calculate amount
     const amount = price * quantity;
 
-    // Validation: check if all required fields are filled in
-    if (!description || isNaN(price) || isNaN(quantity) || !date || !product) {
-        alert("Please fill in all fields correctly.");
-        return;
-    }
+    // Create the record object
+    const record = {
+        Id: id || Date.now(), // Use provided ID or generate a new one
+        ProductName: productName,
+        Description: description,
+        Date: date,
+        Price: price,
+        Quantity: quantity,
+        Amount: amount
+    };
 
-    // Create a new row in the table
-    const table = document.getElementById('recordTable');
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-        <td>
-            <select disabled>
-                <option value="Petrol" ${product === 'Petrol' ? 'selected' : ''}>Petrol</option>
-                <option value="Diesel" ${product === 'Diesel' ? 'selected' : ''}>Diesel</option>
-                <option value="Oil" ${product === 'Oil' ? 'selected' : ''}>Oil</option>
-            </select>
-        </td>
-        <td><input type="text" value="${description}" readonly disabled></td>
-        <td><input type="date" value="${date}" readonly disabled></td>
-        <td><input type="number" value="${price.toFixed(2)}" readonly disabled></td>
-        <td><input type="number" value="${quantity}" readonly disabled></td>
-        <td><input type="number" value="${amount.toFixed(2)}" readonly disabled></td>
-        <td>
-            <button class="btn btn-edit" onclick="editRow(this)">Edit</button>
-            <button class="btn btn-delete" onclick="deleteRow(this)">Delete</button>
-        </td>
-    `;
+    // Retrieve existing records from local storage or initialize an empty array
+    let records = JSON.parse(localStorage.getItem('productRecords')) || [];
 
-    // Append the new row to the table
-    table.appendChild(newRow);
-
-    // Save the new data to localStorage
-    saveTableToLocalStorage();
-    
-    // Recalculate the total amount
-    calculateTotal();
-    
-    // Close the form
-    closeForm();
-}
-
-// Function to delete a row from the table
-function deleteRow(button) {
-    const row = button.closest('tr');
-    row.remove();
-    saveTableToLocalStorage();  // Save data to localStorage after deletion
-    calculateTotal();
-}
-
-// Function to edit a row
-function editRow(button) {
-    const row = button.closest('tr');
-    const product = row.cells[0].querySelector('select').value;
-    const description = row.cells[1].querySelector('input').value;
-    const date = row.cells[2].querySelector('input').value;
-    const price = row.cells[3].querySelector('input').value;
-    const quantity = row.cells[4].querySelector('input').value;
-
-    // Populate form with current row data
-    document.getElementById('product').value = product;
-    document.getElementById('description').value = description;
-    document.getElementById('date').value = date;
-    document.getElementById('price').value = price;
-    document.getElementById('quantity').value = quantity;
-
-    // Show form and allow user to edit
-    openForm();
-
-    // Remove the current row after editing
-    row.remove();
-    saveTableToLocalStorage();  // Save data to localStorage after editing
-}
-
-// Function to toggle the visibility of the popup form
-function toggleForm(displayState) {
-    document.getElementById('popupForm').style.display = displayState;
-    document.getElementById('overlay').style.display = displayState;
-}
-
-// Function to open the popup form
-// Function to open the popup form and pre-fill it if a record exists
-function openForm() {
-    const records = JSON.parse(localStorage.getItem('records')) || [];
-
-    if (records.length > 0) {
-        const lastRecord = records[records.length - 1];
-        document.getElementById('product').value = lastRecord.product;
-        document.getElementById('description').value = lastRecord.description;
-        document.getElementById('date').value = lastRecord.date;
-        document.getElementById('price').value = lastRecord.price;
-        document.getElementById('quantity').value = lastRecord.quantity;
+    // If updating, find and replace the existing record
+    if (id) {
+        records = records.map(r => r.Id === id ? record : r);
     } else {
-        // Clear the form if no records exist
-        document.getElementById('product').value = '';
-        document.getElementById('description').value = '';
-        document.getElementById('date').value = '';
-        document.getElementById('price').value = '';
-        document.getElementById('quantity').value = '1';
+        // Add the new record to the records array
+        records.push(record);
+    }
+    // Validate form fields
+    if (!productName || !description || !date || !price || !quantity) {
+        alert('Please fill in all required fields.');
+        return; // Do not proceed if validation fails
     }
 
-    toggleForm('block');
+    // Save the updated records array back to local storage
+    localStorage.setItem('productRecords', JSON.stringify(records));
+
+    // Refresh the records display
+    displayRecords();
 }
 
-// Function to close the popup form
-function closeForm() {
-    toggleForm('none');
+function submitForm() {
+    // Get form values
+    const productName = document.getElementById('productName').value;
+    const description = document.getElementById('description').value;
+    const date = document.getElementById('date').value;
+    const price = parseFloat(document.getElementById('price').value);
+    const quantity = parseFloat(document.getElementById('quantity').value);
+    const id = document.getElementById('editId').value ? Number(document.getElementById('editId').value) : null; // Convert to number
+
+    // Add or update record
+    addRecord(productName, description, date, price, quantity, id);
+
+    // Reset the form
+    document.getElementById('productForm').reset();
+    document.getElementById('editId').value = '';
 }
 
-// Function to export table data to CSV
-function exportToCSV() {
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Product,Description,Date,Price,Quantity,Amount\n";
+function deleteRecord(id) {
+    // Retrieve existing records from local storage
+    let records = JSON.parse(localStorage.getItem('productRecords')) || [];
 
-    const rows = document.querySelectorAll('#recordTable tr');
-    rows.forEach(row => {
-        const cols = row.querySelectorAll('select, input');
-        const rowData = Array.from(cols).map(col => col.value);
-        csvContent += rowData.join(",") + "\n";
-    });
+    // Filter out the record to delete
+    records = records.filter(record => record.Id !== id);
 
-    downloadCSV(csvContent, "record_list.csv");
-    // Copy csvContent to clipboard
-    navigator.clipboard.writeText(csvContent)
+    // Save the updated records array back to local storage
+    localStorage.setItem('productRecords', JSON.stringify(records));
+
+    // Refresh the records display
+    displayRecords();
 }
 
-// Function to initiate CSV download
-function downloadCSV(csvContent, filename) {
-    const encodedUri = encodeURI(csvContent);
+function editRecord(id) {
+    // Retrieve existing records from local storage
+    let records = JSON.parse(localStorage.getItem('productRecords')) || [];
+    const record = records.find(record => record.Id === id);
+
+    // Populate form with the record data
+    document.getElementById('productName').value = record.ProductName;
+    document.getElementById('description').value = record.Description;
+    document.getElementById('date').value = record.Date;
+    document.getElementById('price').value = record.Price;
+    document.getElementById('quantity').value = record.Quantity;
+    document.getElementById('editId').value = record.Id;
+}
+// Function to convert JSON data to CSV
+function jsonToCSV(json) {
+    const fields = ["ProductName", "Description", "Date", "Price", "Quantity", "Amount"];
+    const replacer = (key, value) => (value === null ? '' : value);
+    const csv = json.map(row => fields.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','));
+    csv.unshift(fields.join(',')); // add header column
+    return csv.join('\r\n');
+}
+
+// Function to download CSV
+function downloadCSV() {
+    const records = JSON.parse(localStorage.getItem('productRecords')) || [];
+    const csv = jsonToCSV(records);
+    navigator.clipboard.writeText(csv)
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    if (link.download !== undefined) { // feature detection
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "product_records.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 }
+function displayRecords() {
+    // Retrieve existing records from local storage
+    const records = JSON.parse(localStorage.getItem('productRecords')) || [];
 
-// Function to prepare email with CSV content
-function prepareEmail() {
-    let csvContent = "Product,Description,Date,Price,Quantity,Amount;";
+    // Get the records container
+    const container = document.getElementById('recordsContainer');
 
-    const rows = document.querySelectorAll('#recordTable tr');
-    rows.forEach(row => {
-        const cols = row.querySelectorAll('select, input');
-        const rowData = Array.from(cols).map(col => col.value);
-        csvContent += rowData.join(",") + ";";
+    // Clear existing cards
+    container.innerHTML = '';
+
+    // Insert new cards
+    records.forEach(record => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        // Check if record.Quantity is valid and use toFixed, otherwise set a default value
+        const quantityText = record.Quantity != null ? record.Quantity.toFixed(2) : 'N/A';
+
+        // Check if record.Price is valid and use toFixed, otherwise set a default value
+        const priceText = record.Price != null ? record.Price.toFixed(2) : 'N/A';
+
+        // Check if record.Amount is valid and use toFixed, otherwise set a default value
+        const amountText = record.Amount != null ? record.Amount.toFixed(2) : 'N/A';
+
+        // Display the card content
+        card.innerHTML = `
+            <h3>${record.Description}</h3>
+            <p><strong>Description:</strong> ${record.ProductName}</p>
+            <p><strong>Date:</strong> ${record.Date}</p>
+            <p><strong>Price:</strong> ₹${priceText}</p>
+            <p><strong>Quantity:</strong> ${quantityText}</p>
+            <p><strong>Amount:</strong> ₹${amountText}</p>
+            <div class="card-actions">
+                <button class="edit" onclick="editRecord(${record.Id})">Edit</button>
+                <button class="delete" onclick="deleteRecord(${record.Id})">Delete</button>
+            </div>
+        `;
+
+        container.appendChild(card);
     });
-
-    // Replace newline characters with spaces to ensure the CSV fits in the email body
-    csvContent = csvContent.replace(/\n/g, ' ');
-
-    // Prepare mailto link
-    const email = 'example@email.com';
-    const subject = encodeURIComponent('CSV Data');
-    const body = encodeURIComponent(csvContent);
-    const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
-
-    // Open the default email application with the prefilled mailto link
-    window.location.href = mailtoLink;
 }
+function clearAllData() {
+    if (confirm('Are you sure you want to delete all records? This action cannot be undone.')) {
+        localStorage.clear();
+        displayRecords(); // Refresh the display to show that the records are gone
+    }
+}
+// Initial display of records
+displayRecords();
