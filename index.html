@@ -3,70 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bill Generator</title>
+    <title>Product Records</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <h1>Product Records</h1>
 
-    <!-- Navigation Panel -->
-    <nav>
-        <h1>Bill Generator</h1>
-        <div class="nav-buttons">
-            <button class="btn btn-add" onclick="openForm()">Add New Record</button>
-            <button class="btn btn-export" onclick="exportToCSV()">Export to CSV</button>
-            <button class="btn btn-email" onclick="prepareEmail()">Send CSV via Email</button>
-        </div>
-    </nav>
+    <!-- Form to Add or Update Records -->
+    <form id="productForm">
+        <input type="hidden" id="editId"> <!-- Hidden input for storing record ID during edit -->
+        <label for="productName">Product Name:</label>
+        <input type="text" id="productName" value="Diesel" name="productName" placeholder="Name" required><br>
 
-    <!-- Table for Records -->
-    <table>
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Description</th>
-                <th>Date</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Amount</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="recordTable">
-            <!-- Dynamic rows will be added here -->
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="5">Total Amount</td>
-                <td id="totalAmount">0</td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
+        <label for="description">Description:</label>
+        <input type="text" id="description" placeholder="Description" name="description" required><br>
 
-    <!-- Pop-up Form for Adding/Editing Records -->
-    <div class="overlay" id="overlay" onclick="closeForm()"></div>
-    <div class="popup-form" id="popupForm">
-        <h3>Add New Record</h3>
-        <label for="product">Product</label>
-        <select id="product" class="input-field">
-            <option value="" disabled selected>Select a product</option>
-            <option value="Petrol">Petrol</option>
-            <option value="Diesel">Diesel</option>
-            <option value="Oil">Oil</option>
-        </select>
-        <label for="description">Description</label>
-        <input type="text" id="description" class="input-field" placeholder="Enter product description">
-        <label for="date">Date</label>
-        <input type="date" id="date" class="input-field" placeholder="Enter Bill Date"><br>
-        <label for="price">Price</label>
-        <input type="number" id="price" class="input-field" value="0" placeholder="Enter price">
-        <label for="quantity">Quantity</label>
-        <input type="number" id="quantity" class="input-field" value="1" placeholder="Enter quantity">
-        <div class="form-buttons">
-            <button class="btn" onclick="addNewRowFromForm()">Add Record</button>
-            <button class="btn btn-close" onclick="closeForm()">Close</button>
-        </div>
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required><br>
+
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" step="0.01" placeholder="Price" required><br>
+
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" placeholder="Quantity" step="0.01" required><br>
+
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <!-- Section to Display Records -->
+    <h2>Records</h2>
+    <div id="recordsContainer" class="card-container">
+        <!-- Records will be dynamically inserted here -->
     </div>
+    <!-- Download CSV Button -->
+    <button type="button" onclick="downloadCSV()">Download CSV</button>
+    <button type="button" onclick="clearAllData()">Delete All</button>
 
     <script src="script.js"></script>
 </body>
