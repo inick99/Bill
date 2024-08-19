@@ -192,7 +192,7 @@ function displayRecords() {
         // Display the card content
         card.innerHTML = `
             <h3>${record.Description}</h3>
-            <p><strong>Description:</strong> ${record.ProductName}</p>
+            <p><strong>Product:</strong> ${record.ProductName}</p>
             <p><strong>Date:</strong> ${record.Date}</p>
             <p><strong>Price:</strong> ₹${priceText}</p>
             <p><strong>Quantity:</strong> ${quantityText}</p>
