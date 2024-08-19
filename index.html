@@ -8,8 +8,6 @@
 </head>
 <body>
     <h1>Product Records</h1>
-    <br>
-    <h2>Grand Total: ₹<span id="grandTotal">0.00</span></h2>
 
     <!-- Form to Add or Update Records -->
     <form id="productForm">
@@ -34,10 +32,14 @@
 
     <!-- Section to Display Records -->
     <h2>Records</h2>
+    <!-- Alert Message -->
+    <div id="alertMessage" class="alert" role="alert" style="display: none;"></div>
+    <h2>Grand Total: ₹<span id="grandTotal">0.00</span></h2>
     <div id="recordsContainer" class="card-container">
         <!-- Records will be dynamically inserted here -->
     </div>
     <!-- Download CSV Button -->
+    <br>
     <button type="button" onclick="downloadCSV()">Download CSV</button>
     <button type="button" onclick="clearAllData()">Delete All</button>
 
