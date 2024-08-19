@@ -154,6 +154,8 @@ function downloadCSV() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        // Display alert message after file download
+        showAlert('File downloaded successfully!', 'success');
     }
 }
 
