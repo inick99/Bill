@@ -51,6 +51,30 @@ function submitForm() {
     // Reset the form
     document.getElementById('productForm').reset();
     document.getElementById('editId').value = '';
+
+    // Set form to the last record's values (if any)
+    setFormToLastRecord();
+}
+
+function setFormToLastRecord() {
+    // Retrieve existing records from local storage
+    const records = JSON.parse(localStorage.getItem('productRecords')) || [];
+
+    if (records.length > 0) {
+        const lastRecord = records[records.length - 1];
+        document.getElementById('productName').value = lastRecord.ProductName || 'Diesel'; // default value if not provided
+        document.getElementById('description').value = lastRecord.Description || '';
+        document.getElementById('date').value = lastRecord.Date || '';
+        document.getElementById('price').value = lastRecord.Price != null ? lastRecord.Price : '';
+        document.getElementById('quantity').value = lastRecord.Quantity != null ? lastRecord.Quantity : '';
+    } else {
+        // Set default values if no records exist
+        document.getElementById('productName').value = 'Diesel';
+        document.getElementById('description').value = '';
+        document.getElementById('date').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('quantity').value = '';
+    }
 }
 
 function deleteRecord(id) {
@@ -118,6 +142,9 @@ function displayRecords() {
     // Clear existing cards
     container.innerHTML = '';
 
+    // Initialize grand total
+    let grandTotal = 0;
+
     // Insert new cards
     records.forEach(record => {
         const card = document.createElement('div');
@@ -131,6 +158,11 @@ function displayRecords() {
 
         // Check if record.Amount is valid and use toFixed, otherwise set a default value
         const amountText = record.Amount != null ? record.Amount.toFixed(2) : 'N/A';
+
+        // Update grand total
+        if (record.Amount != null) {
+            grandTotal += record.Amount;
+        }
 
         // Display the card content
         card.innerHTML = `
@@ -148,6 +180,12 @@ function displayRecords() {
 
         container.appendChild(card);
     });
+
+    // Update the grand total display
+    document.getElementById('grandTotal').textContent = grandTotal.toFixed(2);
+
+    // Set form to the last record's values (if any)
+    setFormToLastRecord();
 }
 function clearAllData() {
     if (confirm('Are you sure you want to delete all records? This action cannot be undone.')) {
