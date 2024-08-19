@@ -125,7 +125,7 @@ function editRecord(id) {
     document.getElementById('editId').value = record.Id;
 
     // Show an alert message indicating that the record is being edited
-    showAlert('Editing record: ' + record.ProductName, 'info');
+    showAlert('Editing record: ' + record.Description, 'info');
 }
 
 // Function to convert JSON data to CSV
