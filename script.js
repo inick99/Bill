@@ -23,6 +23,7 @@ function addRecord(productName, description, date, price, quantity, id) {
         // Add the new record to the records array
         records.push(record);
     }
+    
     // Validate form fields
     if (!productName || !description || !date || !price || !quantity) {
         alert('Please fill in all required fields.');
@@ -36,6 +37,18 @@ function addRecord(productName, description, date, price, quantity, id) {
     displayRecords();
 }
 
+function showAlert(message, type) {
+    const alertBox = document.getElementById('alertMessage');
+    alertBox.className = `alert alert-${type}`;
+    alertBox.textContent = message;
+    alertBox.style.display = 'block';
+
+    // Automatically hide the alert after 3 seconds
+    setTimeout(() => {
+        alertBox.style.display = 'none';
+    }, 3000);
+}
+
 function submitForm() {
     // Get form values
     const productName = document.getElementById('productName').value;
@@ -46,6 +59,7 @@ function submitForm() {
     const id = document.getElementById('editId').value ? Number(document.getElementById('editId').value) : null; // Convert to number
 
     // Add or update record
+    const isUpdate = !!id;
     addRecord(productName, description, date, price, quantity, id);
 
     // Reset the form
@@ -54,6 +68,9 @@ function submitForm() {
 
     // Set form to the last record's values (if any)
     setFormToLastRecord();
+
+    // Show success message
+    showAlert(isUpdate ? 'Record updated successfully!' : 'Record added successfully!', 'success');
 }
 
 function setFormToLastRecord() {
@@ -89,6 +106,9 @@ function deleteRecord(id) {
 
     // Refresh the records display
     displayRecords();
+
+    // Show delete message
+    showAlert('Record deleted successfully!', 'danger');
 }
 
 function editRecord(id) {
@@ -103,7 +123,11 @@ function editRecord(id) {
     document.getElementById('price').value = record.Price;
     document.getElementById('quantity').value = record.Quantity;
     document.getElementById('editId').value = record.Id;
+
+    // Show an alert message indicating that the record is being edited
+    showAlert('Editing record: ' + record.ProductName, 'info');
 }
+
 // Function to convert JSON data to CSV
 function jsonToCSV(json) {
     const fields = ["ProductName", "Description", "Date", "Price", "Quantity", "Amount"];
@@ -132,6 +156,7 @@ function downloadCSV() {
         document.body.removeChild(link);
     }
 }
+
 function displayRecords() {
     // Retrieve existing records from local storage
     const records = JSON.parse(localStorage.getItem('productRecords')) || [];
@@ -187,11 +212,16 @@ function displayRecords() {
     // Set form to the last record's values (if any)
     setFormToLastRecord();
 }
+
 function clearAllData() {
     if (confirm('Are you sure you want to delete all records? This action cannot be undone.')) {
         localStorage.clear();
         displayRecords(); // Refresh the display to show that the records are gone
+
+        // Show clear all message
+        showAlert('All records deleted!', 'warning');
     }
 }
+
 // Initial display of records
 displayRecords();
