@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Invoice Summary</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+        th, td {
+            text-align: center;
+        }
+        th {
+            background-color: yellow;
+        }
+        .left-align {
+            text-align: left;
+        }
+        .right-align {
+            text-align: right;
+        }
+        .centered-align {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<table id="invoiceTable">
+    <tr>
+        <td colspan="8" class="centered-align"><b><h3>ARBUDA PETROLEUM, SONI</b></h3><br>Dealer: BPCL<br>Soni Mo:-94275 98784</td>
+    </tr>
+    <tr>
+        <td colspan="8" class="centered-align"><h4>Retail Invoice</h4></td>
+    </tr>
+    <tr>
+        <td colspan="5" class="left-align"><b>Name: SHREEKAR CONSTRUCTION</b></td>
+        <td colspan="3" class="centered-align"></td>
+    </tr>
+    <tr>
+        <td colspan="5" class="left-align"><b>ADDRESS: LS NO 132 ANIDA, TALALA, GIR, SOMNATH, GUJARAT - 362140</b></td>
+        <td colspan="3" class="centered-align"><b>Date:<br><span id="invoiceDate"></span></b></td>
+    </tr>
+    <tr>
+        <td colspan="5" class="centered-align"><b>GSTIN NO:<br>24AQZ</b></td>
+        <td colspan="3" class="centered-align"><b>Statement:<br><span id="statementPeriod"></span></b></td>
+    </tr>
+    <tr>
+        <th>Sr. No</th>
+        <th>Date</th>
+        <th>Bill No</th>
+        <th>Product Name</th>
+        <th>Description</th>
+        <th>Qty</th>
+        <th>Rate</th>
+        <th>Amount</th>
+    </tr>
+    <tbody id="invoiceBody">
+        <!-- Rows will be added here by JavaScript -->
+    </tbody>
+    <tr>
+        <td colspan="5" class="left-align"><b><u>Item Summary</u><br><br><b>Quantity: <span id="totalQuantity"></span> liters</b></b></td>
+        <td colspan="2" class="left-align"><b>Gross Amount</b></td>
+        <td colspan="1" class="right-align"><b><span id="grossAmount"></span></b></td>
+    </tr>
+    <tr>
+        <td colspan="5" class="centered-align">⛽️</td>
+        <td colspan="2" class="left-align"><b>Net Amount</b></td>
+        <td colspan="1" class="right-align"><b><span id="netAmount"></span></b></td>
+    </tr>
+    <tr>
+        <td colspan="8" class="left-align">1) Subject to Jamnagar Jurisdiction<br>2) Query in the Invoice should be notified to us immediately. No claim shall be entertained after 1 day from the date of bill<br>3) If bill is Paid after due date, 24% int. will be charged<br>4) Rates are inclusive VAT</td>
+    </tr>
+    <tr>
+        <td colspan="8" class="right-align"><b>FOR, ARBUDA PETROLEUM</b></td>
+    </tr>
+    <tr>
+        <td colspan="8" class="right-align">Authorised Signatory</td>
+    </tr>
+</table>
+
+<script>
+    // Retrieve the product records from local storage
+    const records = JSON.parse(localStorage.getItem('productRecords')) || [];
+
+    // Populate the table with data from productRecords
+    const invoiceBody = document.getElementById('invoiceBody');
+    let totalQuantity = 0;
+    let grossAmount = 0;
+
+    records.forEach((record, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${record.Date}</td>
+            <td>${record.Id}</td>
+            <td>${record.ProductName}</td>
+            <td>${record.Description}</td>
+            <td>${record.Quantity}</td>
+            <td>${record.Price}</td>
+            <td class="right-align">${record.Amount}</td>
+        `;
+        invoiceBody.appendChild(row);
+        totalQuantity += record.Quantity;
+        grossAmount += record.Amount;
+    });
+
+    // Populate the summary section
+    document.getElementById('totalQuantity').innerText = totalQuantity;
+    document.getElementById('grossAmount').innerText = grossAmount;
+    document.getElementById('netAmount').innerText = grossAmount;
+
+    // Populate the date fields (assuming the first and last record dates for the statement period)
+    const invoiceDate = new Date().toLocaleDateString();  // Current date
+    document.getElementById('invoiceDate').innerText = invoiceDate;
+    if (records.length > 0) {
+        const firstDate = records[0].Date;
+        const lastDate = records[records.length - 1].Date;
+        document.getElementById('statementPeriod').innerText = `${firstDate} to ${lastDate}`;
+    }
+</script>
+
+</body>
+</html>
