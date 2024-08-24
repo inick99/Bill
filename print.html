@@ -50,13 +50,13 @@
     </tr>
     <tr>
         <th>Sr. No</th>
-        <th>Date</th>
+        <th style="width: 200px;">Date</th>
         <th>Bill No</th>
         <th>Product Name</th>
         <th>Description</th>
         <th>Qty</th>
-        <th>Rate</th>
-        <th>Amount</th>
+        <th style="width: 200px;">Rate</th>
+        <th style="width: 200px;">Amount</th>
     </tr>
     <tbody id="invoiceBody">
         <!-- Rows will be added here by JavaScript -->
@@ -95,13 +95,13 @@
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${index + 1}</td>
-            <td>${record.Date}</td>
+            <td style="width: 200px;">${record.Date}</td>
             <td>${record.Id}</td>
             <td>${record.ProductName}</td>
             <td>${record.Description}</td>
             <td>${record.Quantity}</td>
-            <td>${record.Price}</td>
-            <td class="right-align">${record.Amount}</td>
+            <td style="width: 200px;">${record.Price}</td>
+            <td class="right-align" style="width: 200px;">${record.Amount}</td>
         `;
         invoiceBody.appendChild(row);
         totalQuantity += record.Quantity;
