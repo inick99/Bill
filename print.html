@@ -37,8 +37,7 @@
         <td colspan="8" class="centered-align"><h4>Retail Invoice</h4></td>
     </tr>
     <tr>
-        <td colspan="5" class="left-align"><b>Name: SHREEKAR CONSTRUCTION</b></td>
-        <td colspan="3" class="centered-align"></td>
+        <td colspan="8" class="left-align"><b>Name: SHREEKAR CONSTRUCTION</b></td>
     </tr>
     <tr>
         <td colspan="5" class="left-align"><b>ADDRESS: LS NO 132 ANIDA, TALALA, GIR, SOMNATH, GUJARAT - 362140</b></td>
@@ -63,39 +62,45 @@
     </tbody>
     <tr>
         <td colspan="5" class="left-align"><b><u>Item Summary</u><br><br><b>Quantity: <span id="totalQuantity"></span> liters</b></b></td>
-        <td colspan="2" class="left-align"><b>Gross Amount</b></td>
-        <td colspan="1" class="right-align"><b><span id="grossAmount"></span></b></td>
+        <td colspan="2" class="left-align"><b>Total Amount</b></td>
+        <td colspan="1" class="right-align"><b><span id="TotalAmount"></span></b></td>
     </tr>
     <tr>
-        <td colspan="5" class="centered-align">⛽️</td>
-        <td colspan="2" class="left-align"><b>Net Amount</b></td>
-        <td colspan="1" class="right-align"><b><span id="netAmount"></span></b></td>
+        <td colspan="8" class="left-align">1) Subject to Banaskantha Jurisdiction<br>2) Query in the Invoice should be notified to us immediately. No claim shall be entertained after 1 day from the date of bill<br>3) If bill is Paid after due date, 24% int. will be charged<br>4) Rates are inclusive VAT</td>
     </tr>
     <tr>
-        <td colspan="8" class="left-align">1) Subject to Jamnagar Jurisdiction<br>2) Query in the Invoice should be notified to us immediately. No claim shall be entertained after 1 day from the date of bill<br>3) If bill is Paid after due date, 24% int. will be charged<br>4) Rates are inclusive VAT</td>
+        <td colspan="8" class="right-align"><b>FOR, ARBUDA PETROLEUM<br>Authorised Signatory</b></td>
     </tr>
     <tr>
-        <td colspan="8" class="right-align"><b>FOR, ARBUDA PETROLEUM</b></td>
-    </tr>
-    <tr>
-        <td colspan="8" class="right-align">Authorised Signatory</td>
+        <td colspan="8" class="right-align"></td>
     </tr>
 </table>
 
 <script>
+    // Function to format date to DD-MM-YYYY
+    function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+    }
     // Retrieve the product records from local storage
     const records = JSON.parse(localStorage.getItem('productRecords')) || [];
 
     // Populate the table with data from productRecords
     const invoiceBody = document.getElementById('invoiceBody');
     let totalQuantity = 0;
-    let grossAmount = 0;
+    let TotalAmount = 0;
 
     records.forEach((record, index) => {
+        const amount = parseFloat(record.Amount).toFixed(2);
+        const price = parseFloat(record.Price).toFixed(2);
+        const formattedDate = formatDate(record.Date);
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${index + 1}</td>
-            <td style="width: 200px;">${record.Date}</td>
+            <td style="width: 200px;">${formattedDate}</td>
             <td>${record.Id}</td>
             <td>${record.ProductName}</td>
             <td>${record.Description}</td>
@@ -105,13 +110,12 @@
         `;
         invoiceBody.appendChild(row);
         totalQuantity += record.Quantity;
-        grossAmount += record.Amount;
+        TotalAmount += record.Amount;
     });
 
     // Populate the summary section
     document.getElementById('totalQuantity').innerText = totalQuantity;
-    document.getElementById('grossAmount').innerText = grossAmount;
-    document.getElementById('netAmount').innerText = grossAmount;
+    document.getElementById('TotalAmount').innerText = TotalAmount;
 
     // Populate the date fields (assuming the first and last record dates for the statement period)
     const invoiceDate = new Date().toLocaleDateString();  // Current date
