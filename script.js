@@ -1,4 +1,10 @@
 function addRecord(productName, description, billno, date, price, quantity, id) {
+    // Validate form fields
+    if (!productName || !description || !billno || !date || !price || !quantity) {
+        showAlert('Please fill in all required fields.', 'danger');
+        return; // Do not proceed if validation fails
+    }
+
     // Calculate amount
     const amount = price * quantity;
 
@@ -23,12 +29,6 @@ function addRecord(productName, description, billno, date, price, quantity, id) 
     } else {
         // Add the new record to the records array
         records.push(record);
-    }
-    
-    // Validate form fields
-    if (!productName || !description || !billno|| !date || !price || !quantity) {
-        alert('Please fill in all required fields.');
-        return; // Do not proceed if validation fails
     }
 
     // Save the updated records array back to local storage
@@ -58,44 +58,24 @@ function submitForm() {
     const date = document.getElementById('date').value;
     const price = parseFloat(document.getElementById('price').value);
     const quantity = parseFloat(document.getElementById('quantity').value);
-    const id = document.getElementById('editId').value ? Number(document.getElementById('editId').value) : null; // Convert to number
+    const id = document.getElementById('editId').value ? Number(document.getElementById('editId').value) : null;
 
     // Add or update record
     const isUpdate = !!id;
     addRecord(productName, description, billno, date, price, quantity, id);
 
-    // Reset the form
-    document.getElementById('productForm').reset();
-    document.getElementById('editId').value = '';
-
-    // Set form to the last record's values (if any)
-    setFormToLastRecord();
-
     // Show success message
     showAlert(isUpdate ? 'Record updated successfully!' : 'Record added successfully!', 'success');
+
+    // Reset the form after successful submission
+    document.getElementById('productForm').reset();
+
+    // Set form to default values (e.g., "Diesel")
+    setFormToDefaults();
 }
 
-function setFormToLastRecord() {
-    // Retrieve existing records from local storage
-    const records = JSON.parse(localStorage.getItem('productRecords')) || [];
-
-    if (records.length > 0) {
-        const lastRecord = records[records.length - 1];
-        document.getElementById('productName').value = lastRecord.ProductName || 'Diesel'; // default value if not provided
-        document.getElementById('description').value = lastRecord.Description || '';
-        document.getElementById('billno').value = lastRecord.Billno || '';
-        document.getElementById('date').value = lastRecord.Date || '';
-        document.getElementById('price').value = lastRecord.Price != null ? lastRecord.Price : '';
-        document.getElementById('quantity').value = lastRecord.Quantity != null ? lastRecord.Quantity : '';
-    } else {
-        // Set default values if no records exist
-        document.getElementById('productName').value = 'Diesel';
-        document.getElementById('description').value = '';
-        document.getElementById('billno').value = '';
-        document.getElementById('date').value = '';
-        document.getElementById('price').value = '';
-        document.getElementById('quantity').value = '';
-    }
+function setFormToDefaults() {
+    document.getElementById('productName').value = 'Diesel';
 }
 
 function deleteRecord(id) {
@@ -146,8 +126,7 @@ function jsonToCSV(json) {
 function downloadCSV() {
     const records = JSON.parse(localStorage.getItem('productRecords')) || [];
     const csv = jsonToCSV(records);
-    navigator.clipboard.writeText(csv)
-    
+
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
 
@@ -159,8 +138,18 @@ function downloadCSV() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
         // Display alert message after file download
         showAlert('File downloaded successfully!', 'success');
+    }
+
+    // Copy CSV to clipboard
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(csv).then(() => {
+            showAlert('CSV copied to clipboard!', 'success');
+        }, () => {
+            showAlert('Failed to copy CSV to clipboard.', 'danger');
+        });
     }
 }
 
@@ -213,27 +202,22 @@ function displayRecords() {
                 <button class="delete" onclick="deleteRecord(${record.Id})">Delete</button>
             </div>
         `;
-
         container.appendChild(card);
     });
 
-    // Update the grand total display
-    document.getElementById('grandTotal').textContent = grandTotal.toFixed(2);
-
-    // Set form to the last record's values (if any)
-    setFormToLastRecord();
+    // Display the grand total
+    document.getElementById('grandTotal').textContent = 'Grand Total: ₹' + grandTotal.toFixed(2);
 }
-
 
 function clearAllData() {
     if (confirm('Are you sure you want to delete all records? This action cannot be undone.')) {
-        localStorage.clear();
-        displayRecords(); // Refresh the display to show that the records are gone
+        // Clear local storage
+        localStorage.removeItem('productRecords');
 
-        // Show clear all message
-        showAlert('All records deleted!', 'warning');
+        // Refresh the records display
+        displayRecords();
+
+        // Show delete all message
+        showAlert('All records have been deleted!', 'danger');
     }
 }
-
-// Initial display of records
-displayRecords();
