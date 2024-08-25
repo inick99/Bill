@@ -79,24 +79,25 @@
 <script>
     // Function to format date to DD-MM-YYYY
     function formatDate(dateString) {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
     }
+
     // Retrieve the product records from local storage
     const records = JSON.parse(localStorage.getItem('productRecords')) || [];
 
     // Populate the table with data from productRecords
     const invoiceBody = document.getElementById('invoiceBody');
     let totalQuantity = 0;
-    let TotalAmount = 0;
+    let totalAmount = 0;
 
     records.forEach((record, index) => {
-        const amount = parseFloat(record.Amount).toFixed(2);
-        const price = parseFloat(record.Price).toFixed(2);
-        const formattedDate = formatDate(record.Date);
+        const amount = (record.Price * record.Quantity).toFixed(2); // Calculate amount and fix to 2 decimal places
+        const price = parseFloat(record.Price).toFixed(2); // Fix price to 2 decimal places
+        const formattedDate = formatDate(record.Date); // Format the date to DD-MM-YYYY
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${index + 1}</td>
@@ -104,25 +105,25 @@
             <td>${record.Id}</td>
             <td>${record.ProductName}</td>
             <td>${record.Description}</td>
-            <td>${record.Quantity}</td>
-            <td style="width: 200px;">${record.Price}</td>
-            <td class="right-align" style="width: 200px;">${record.Amount}</td>
+            <td>${parseFloat(record.Quantity).toFixed(2)}</td>
+            <td style="width: 200px;">${price}</td>
+            <td class="right-align" style="width: 200px;">${amount}</td>
         `;
         invoiceBody.appendChild(row);
-        totalQuantity += record.Quantity;
-        TotalAmount += record.Amount;
+        totalQuantity += parseFloat(record.Quantity);
+        totalAmount += parseFloat(amount);
     });
 
     // Populate the summary section
-    document.getElementById('totalQuantity').innerText = totalQuantity;
-    document.getElementById('TotalAmount').innerText = TotalAmount;
+    document.getElementById('totalQuantity').innerText = totalQuantity.toFixed(2);
+    document.getElementById('TotalAmount').innerText = totalAmount.toFixed(2);
 
     // Populate the date fields (assuming the first and last record dates for the statement period)
-    const invoiceDate = new Date().toLocaleDateString();  // Current date
+    const invoiceDate = formatDate(new Date().toISOString());  // Current date formatted to DD-MM-YYYY
     document.getElementById('invoiceDate').innerText = invoiceDate;
     if (records.length > 0) {
-        const firstDate = records[0].Date;
-        const lastDate = records[records.length - 1].Date;
+        const firstDate = formatDate(records[0].Date);
+        const lastDate = formatDate(records[records.length - 1].Date);
         document.getElementById('statementPeriod').innerText = `${firstDate} to ${lastDate}`;
     }
 </script>
