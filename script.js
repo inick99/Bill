@@ -182,19 +182,20 @@ function displayRecords() {
         const card = document.createElement('div');
         card.className = 'card';
 
-        // Check if record.Quantity is valid and use toFixed, otherwise set a default value
-        const quantityText = record.Quantity != null ? record.Quantity.toFixed(2) : 'N/A';
+        // Ensure record.Quantity is a number before using toFixed
+        const quantityText = typeof record.Quantity === 'number' ? record.Quantity.toFixed(2) : 'N/A';
 
-        const BillnoText = record.Billno != null ? record.Billno.toFixed(2) : 'N/A';
+        // Ensure record.Billno is a number before using toFixed
+        const billnoText = typeof record.Billno === 'number' ? record.Billno.toFixed(2) : 'N/A';
 
-        // Check if record.Price is valid and use toFixed, otherwise set a default value
-        const priceText = record.Price != null ? record.Price.toFixed(2) : 'N/A';
+        // Ensure record.Price is a number before using toFixed
+        const priceText = typeof record.Price === 'number' ? record.Price.toFixed(2) : 'N/A';
 
-        // Check if record.Amount is valid and use toFixed, otherwise set a default value
-        const amountText = record.Amount != null ? record.Amount.toFixed(2) : 'N/A';
+        // Ensure record.Amount is a number before using toFixed
+        const amountText = typeof record.Amount === 'number' ? record.Amount.toFixed(2) : 'N/A';
 
         // Update grand total
-        if (record.Amount != null) {
+        if (typeof record.Amount === 'number') {
             grandTotal += record.Amount;
         }
 
@@ -202,7 +203,7 @@ function displayRecords() {
         card.innerHTML = `
             <h3>${record.Description}</h3>
             <p><strong>Product:</strong> ${record.ProductName}</p>
-            <p><strong>Bill No:</strong> ${record.Billno}</p>
+            <p><strong>Bill No:</strong> ${billnoText}</p>
             <p><strong>Date:</strong> ${record.Date}</p>
             <p><strong>Price:</strong> ₹${priceText}</p>
             <p><strong>Quantity:</strong> ${quantityText}</p>
@@ -222,6 +223,7 @@ function displayRecords() {
     // Set form to the last record's values (if any)
     setFormToLastRecord();
 }
+
 
 function clearAllData() {
     if (confirm('Are you sure you want to delete all records? This action cannot be undone.')) {
