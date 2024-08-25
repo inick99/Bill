@@ -7,44 +7,46 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Product Records</h1>
-    <!-- Alert Message -->
-    <div id="alertMessage" class="alert" role="alert" style="display: none;"></div>
-    <!-- Form to Add or Update Records -->
-    <form id="productForm">
-        <input type="hidden" id="editId"> <!-- Hidden input for storing record ID during edit -->
-        <label for="productName">Product Name:</label>
-        <input type="text" id="productName" value="Diesel" name="productName" placeholder="Name" required><br>
+    <div class="container">
+        <h1>Product Records</h1>
 
-        <label for="description">Description:</label>
-        <input type="text" id="description" placeholder="Description" name="description" required><br>
+        <div id="alertMessage" class="alert" style="display: none;"></div>
 
-        <label for="billno">Bill No:</label>
-        <input type="number" id="billno" placeholder="Bill No" name="billno" required><br>
+        <form id="productForm" onsubmit="submitForm(); return false;">
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <input type="text" id="productName" name="productName" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" required>
+            </div>
+            <div class="form-group">
+                <label for="billno">Bill Number</label>
+                <input type="number" id="billno" name="billno" required>
+            </div>
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="price">Price</label>
+                <input type="number" step="0.01" id="price" name="price" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" step="0.01" id="quantity" name="quantity" required>
+            </div>
+            <input type="hidden" id="editId" name="editId">
+            <button type="submit">Submit</button>
+        </form>
 
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date" required><br>
+        <div id="recordsContainer"></div>
+        <div id="grandTotal"></div>
 
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" step="0.01" placeholder="Price" required><br>
-
-        <label for="quantity">Quantity:</label>
-        <input type="number" id="quantity" name="quantity" placeholder="Quantity" step="0.01" required><br>
-
-        <button type="button" onclick="submitForm()">Submit</button>
-    </form>
-
-    <!-- Section to Display Records -->
-    <h2>Grand Total: ₹<span id="grandTotal">0.00</span></h2>
-    <h2>Records</h2>
-    <div id="recordsContainer" class="card-container">
-        <!-- Records will be dynamically inserted here -->
+        <button onclick="downloadCSV()">Download CSV</button>
+        <button onclick="clearAllData()">Delete All</button>
     </div>
-    <!-- Download CSV Button -->
-    <br>
-    <button type="button" onclick="downloadCSV()">Download CSV</button>
-    <button type="button" onclick="clearAllData()">Delete All</button>
-    <button type="button" onclick="window.location.href='print.html';">Print</button>
 
     <script src="script.js"></script>
 </body>
