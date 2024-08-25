@@ -30,7 +30,7 @@
         }
         
         .date-column {
-        width: 150px;
+        width: auto;
         }
 
         .left-align {
@@ -156,7 +156,7 @@
                 <tr>
                     <td>${index + 1}</td>
                     <td class="date-column">${formatDate(record.Date)}</td>
-                    <td>${record.Id}</td>
+                    <td>${record.Id.slice(-4)}</td>
                     <td>${record.ProductName}</td>
                     <td>${record.Description}</td>
                     <td>${parseFloat(record.Quantity).toFixed(2)}</td>
