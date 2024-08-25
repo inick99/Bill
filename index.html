@@ -9,6 +9,9 @@
 <body>
     <h1>Product Records</h1>
 
+    <!-- Alert Message -->
+    <div id="alertMessage" class="alert" role="alert" style="display: none;"></div>
+
     <!-- Form to Add or Update Records -->
     <form id="productForm">
         <input type="hidden" id="editId"> <!-- Hidden input for storing record ID during edit -->
@@ -17,6 +20,9 @@
 
         <label for="description">Description:</label>
         <input type="text" id="description" placeholder="Description" name="description" required><br>
+
+        <label for="billno">Bill No:</label>
+        <input type="number" id="billno" placeholder="Bill Number" name="billno" required><br>
 
         <label for="date">Date:</label>
         <input type="date" id="date" name="date" required><br>
@@ -33,8 +39,6 @@
     <!-- Section to Display Records -->
     <h2>Grand Total: ₹<span id="grandTotal">0.00</span></h2>
     <h2>Records</h2>
-    <!-- Alert Message -->
-    <div id="alertMessage" class="alert" role="alert" style="display: none;"></div>
     <div id="recordsContainer" class="card-container">
         <!-- Records will be dynamically inserted here -->
     </div>
