@@ -28,6 +28,10 @@
         th {
             background-color: #ffeb3b;
         }
+        
+        .date-column {
+        width: 150px;
+        }
 
         .left-align {
             text-align: left;
@@ -88,7 +92,7 @@
             </tr>
             <tr>
                 <th>Sr. No</th>
-                <th>Date</th>
+                <th class="date-column">Date</th>
                 <th>Bill No</th>
                 <th>Product Name</th>
                 <th>Description</th>
@@ -151,7 +155,7 @@
             const row = `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>${formatDate(record.Date)}</td>
+                    <td class="date-column">${formatDate(record.Date)}</td>
                     <td>${record.Id}</td>
                     <td>${record.ProductName}</td>
                     <td>${record.Description}</td>
