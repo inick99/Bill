@@ -1,4 +1,4 @@
-function addRecord(productName, description, date, price, quantity, id) {
+function addRecord(productName, description, billno, date, price, quantity, id) {
     // Calculate amount
     const amount = price * quantity;
 
