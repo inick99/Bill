@@ -1,4 +1,4 @@
-function addRecord(productName, description, date, price, quantity, id) {
+function addRecord(productName, description, date, number, price, quantity, id) {
     // Calculate amount
     const amount = price * quantity;
 
@@ -8,6 +8,7 @@ function addRecord(productName, description, date, price, quantity, id) {
         ProductName: productName,
         Description: description,
         Date: date,
+	Number: number,
         Price: price,
         Quantity: quantity,
         Amount: amount
@@ -25,7 +26,7 @@ function addRecord(productName, description, date, price, quantity, id) {
     }
     
     // Validate form fields
-    if (!productName || !description || !date || !price || !quantity) {
+    if (!productName || !description || !date || !number || !price || !quantity) {
         alert('Please fill in all required fields.');
         return; // Do not proceed if validation fails
     }
@@ -46,7 +47,7 @@ function showAlert(message, type) {
     // Automatically hide the alert after 3 seconds
     setTimeout(() => {
         alertBox.style.display = 'none';
-    }, 3000);
+    }, 6000);
 }
 
 function submitForm() {
@@ -54,13 +55,14 @@ function submitForm() {
     const productName = document.getElementById('productName').value;
     const description = document.getElementById('description').value;
     const date = document.getElementById('date').value;
+    const number = parseFloat(document.getElementById('number').value);
     const price = parseFloat(document.getElementById('price').value);
     const quantity = parseFloat(document.getElementById('quantity').value);
     const id = document.getElementById('editId').value ? Number(document.getElementById('editId').value) : null; // Convert to number
 
     // Add or update record
     const isUpdate = !!id;
-    addRecord(productName, description, date, price, quantity, id);
+    addRecord(productName, description, date, number, price, quantity, id);
 
     // Reset the form
     document.getElementById('productForm').reset();
@@ -82,6 +84,7 @@ function setFormToLastRecord() {
         document.getElementById('productName').value = lastRecord.ProductName || 'Diesel'; // default value if not provided
         document.getElementById('description').value = lastRecord.Description || '';
         document.getElementById('date').value = lastRecord.Date || '';
+        document.getElementById('number').value = lastRecord.Number != null ? lastRecord.Number : '';
         document.getElementById('price').value = lastRecord.Price != null ? lastRecord.Price : '';
         document.getElementById('quantity').value = lastRecord.Quantity != null ? lastRecord.Quantity : '';
     } else {
@@ -89,6 +92,7 @@ function setFormToLastRecord() {
         document.getElementById('productName').value = 'Diesel';
         document.getElementById('description').value = '';
         document.getElementById('date').value = '';
+        document.getElementById('number').value = '';
         document.getElementById('price').value = '';
         document.getElementById('quantity').value = '';
     }
@@ -120,6 +124,7 @@ function editRecord(id) {
     document.getElementById('productName').value = record.ProductName;
     document.getElementById('description').value = record.Description;
     document.getElementById('date').value = record.Date;
+    document.getElementById('number').value = record.Number;
     document.getElementById('price').value = record.Price;
     document.getElementById('quantity').value = record.Quantity;
     document.getElementById('editId').value = record.Id;
@@ -128,36 +133,6 @@ function editRecord(id) {
     showAlert('Editing record: ' + record.Description, 'info');
 }
 
-// Function to convert JSON data to CSV
-function jsonToCSV(json) {
-    const fields = ["ProductName", "Description", "Date", "Price", "Quantity", "Amount"];
-    const replacer = (key, value) => (value === null ? '' : value);
-    const csv = json.map(row => fields.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','));
-    csv.unshift(fields.join(',')); // add header column
-    return csv.join('\r\n');
-}
-
-// Function to download CSV
-function downloadCSV() {
-    const records = JSON.parse(localStorage.getItem('productRecords')) || [];
-    const csv = jsonToCSV(records);
-    navigator.clipboard.writeText(csv)
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-
-    if (link.download !== undefined) { // feature detection
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", "product_records.csv");
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        // Display alert message after file download
-        showAlert('File downloaded successfully!', 'success');
-    }
-}
 
 function displayRecords() {
     // Retrieve existing records from local storage
@@ -180,6 +155,9 @@ function displayRecords() {
         // Check if record.Quantity is valid and use toFixed, otherwise set a default value
         const quantityText = record.Quantity != null ? record.Quantity.toFixed(2) : 'N/A';
 
+        // Check if record.Number is valid and use toFixed, otherwise set a default value
+        const numberText = record.Number != null ? record.Number.toFixed(0) : 'N/A';
+
         // Check if record.Price is valid and use toFixed, otherwise set a default value
         const priceText = record.Price != null ? record.Price.toFixed(2) : 'N/A';
 
@@ -196,6 +174,7 @@ function displayRecords() {
             <h3>${record.Description}</h3>
             <p><strong>Product:</strong> ${record.ProductName}</p>
             <p><strong>Date:</strong> ${record.Date}</p>
+            <p><strong>Bill No:</strong> ${numberText}</p>
             <p><strong>Price:</strong> ₹${priceText}</p>
             <p><strong>Quantity:</strong> ${quantityText}</p>
             <p><strong>Amount:</strong> ₹${amountText}</p>
